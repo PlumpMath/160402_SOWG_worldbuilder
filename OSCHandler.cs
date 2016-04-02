@@ -23,6 +23,7 @@ using System;
 using System.Net;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Linq;
 
 using UnityEngine;
 using UnityOSC;
@@ -114,11 +115,11 @@ public class OSCHandler : MonoBehaviour
 		// ALSO we have to set index in InitializeCamera.cs
 
 
-		//var IAm = "phoneA"; var TheyAre = "computer";
+		//var IAm = "phoneB"; var TheyAre = "computer";
 		//var IAm = "computer"; var TheyAre = "phoneA";
 		//var IAm = "phoneA"; var TheyAre = "phoneB";
-		var IAm = "phoneB"; var TheyAre = "phoneA";
-		//var IAm = "computer"; var TheyAre = "phoneB";
+		//var IAm = "phoneB"; var TheyAre = "phoneA";
+		var IAm = "computer"; var TheyAre = "phoneB";
 
 		// THE BELOW STUFF JUST MAKES OUR LIVES EASIER. DON'T EDIT.
 		var sendToHost = ""; var sendToPort = 0; var listenFromPort = 0;
@@ -145,8 +146,10 @@ public class OSCHandler : MonoBehaviour
 	void Start() {
 		OSCHandler.Instance.Init();
 
-		InvokeRepeating("sendCameraMessage", 0, 0.05F);
-		InvokeRepeating("receiveCameraMessage", 0, 0.05F);
+		InvokeRepeating("sendCameraMessage", 0, 1F);
+		InvokeRepeating("receiveCameraMessage", 0, 1F);
+		//InvokeRepeating ("handleGazeHit", 1, 1F);
+
 
 	}
 
@@ -215,11 +218,35 @@ public class OSCHandler : MonoBehaviour
 			cameraToSet.gameObject.transform.position = getVector3(positionorientation[0]);
 			cameraToSet.gameObject.transform.eulerAngles = getVector3(positionorientation[1]);
 
+
+			// move this into separate function
+
+		
+
+			GameObject candidate = GameObject.Find ("testCandidate");
+			print("handleGazeHit()");
+			print(GazeMeshModellerFunctions.GazeUpdate(cameraToSet, candidate, 0.3f, 0.3f));
+
+
+			//GazeMeshModellerFunctions.GazeUpdate(cameraToSet, candidate, 1, 1);
+
+			//
+
+
+
 		} catch(Exception e) {
 			print ("Error happened: " + e);
 		}
 
 
+	}
+
+	void handleGazeHit() {
+		/*
+		GameObject candidate = GameObject.Find ("testCandidate");
+		print("handleGazeHit()");
+		print(GazeMeshModellerFunctions.GazeUpdate(Camera.main.gameObject, candidate, 0.3f, 0.3f));
+*/
 	}
 
 	/*************************************
