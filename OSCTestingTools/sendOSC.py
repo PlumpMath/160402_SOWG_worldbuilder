@@ -12,22 +12,13 @@ while(1):
     oscmsg = OSC.OSCMessage()
 
     oscMessage = '(-23.16295, 1.55000, ' + str((counter/100.0) - 5.0) + ')/(' + str((counter) * 10 % 360) + ', 261.26000, ' + str((counter) * 2 % 180) + ')'
-    oscAddress = "/SWG/camera/9999/positionorientation"
+    oscAddress = "/SWG/camera/OTHERCAMERA/positionorientation"
     oscmsg.setAddress(oscAddress)
     oscmsg.append(oscMessage)
     print counter , "sending", oscMessage, " to Unity to ", oscAddress
     c.send(oscmsg)
-
-
-    oscMessage = '(23.16295, 0.55000, ' + str((counter/100.0) - 5.0) + ')/(' + str((counter) * 10 % 360) + ', 61.26000, ' + str((counter) * 5 % 180) + ')'
-    oscAddress = "/SWG/camera/8888/positionorientation"
-    oscmsg.setAddress(oscAddress)
-    oscmsg.append(oscMessage)
-    print counter , "sending", oscMessage, " to Unity to ", oscAddress
-    c.send(oscmsg)
-
 
 
     counter = counter + 1
-    time.sleep(1)
+    time.sleep(0.01)
 

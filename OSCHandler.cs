@@ -112,13 +112,17 @@ public class OSCHandler : MonoBehaviour
 	void Start() {
 		OSCHandler.Instance.Init();
 
-		InvokeRepeating("sendMessage", 0, 2.0F);
-		InvokeRepeating("receiveMessage", 0, 1.0F);
+		InvokeRepeating("sendCameraMessage", 0, 0.01F);
+		InvokeRepeating("receiveCameraMessage", 0, 0.01F);
 
 	}
 
+	void Update() {
+		//receiveCameraMessage ();
+	}
 
-	void sendMessage() {
+
+	void sendCameraMessage() {
 		DateTime time = DateTime.Now;
 
 		//float orientationAngle = 30.0f;
@@ -133,6 +137,7 @@ public class OSCHandler : MonoBehaviour
 
 		OSCHandler.Instance.SendMessageToClient("testServer", OSCAddress, OSCMessage);
 
+
 	}
 
 	public Vector3 getVector3(string rString){
@@ -145,35 +150,39 @@ public class OSCHandler : MonoBehaviour
 	}
 
 
-	void receiveMessage() {
+	void receiveCameraMessage() {
 		OSCHandler.Instance.UpdateLogs();
 
 		Dictionary<string, ServerLog> servers = new Dictionary<string, ServerLog>();
 		servers = OSCHandler.Instance.Servers;
-	
-		string oscMessage = servers["thisListener"].server.LastReceivedPacket.Data[0].ToString();
-		string oscAddress = servers["thisListener"].server.LastReceivedPacket.Address;
 
-		print(">>>>");
-
-		print (oscMessage);
-		print (oscAddress);
-
-		string[] positionorientation = oscMessage.Split('/');
-
-		// /SWG/camera/9999/positionorientation
-
-		Regex regex = new Regex(@"/camera/(?<cameraNumber>\d+?)/positionorientation");
-		var match = regex.Match(oscAddress);
-		var cameraNumber = Int32.Parse(match.Groups["cameraNumber"].Value);
-
-		print (cameraNumber);
+		try {
 	
 
+			string oscMessage = servers["thisListener"].server.LastReceivedPacket.Data[0].ToString();
+			string oscAddress = servers["thisListener"].server.LastReceivedPacket.Address;
 
-		GameObject cameraToSet = GameObject.Find ("Camera9999");
-		cameraToSet.gameObject.transform.position = getVector3(positionorientation[0]);
-		cameraToSet.gameObject.transform.eulerAngles = getVector3(positionorientation[1]);
+			/*print(">>>>");
+
+			print (oscMessage);
+			print (oscAddress);*/
+		
+		
+			Regex regex = new Regex(@"/camera/(?<cameraID>\w+?)/positionorientation");
+			var match = regex.Match(oscAddress);
+			var cameraID = match.Groups["cameraID"].Value;
+		
+
+			GameObject cameraToSet = GameObject.Find (cameraID);
+			string[] positionorientation = oscMessage.Split('/');
+
+			cameraToSet.gameObject.transform.position = getVector3(positionorientation[0]);
+			cameraToSet.gameObject.transform.eulerAngles = getVector3(positionorientation[1]);
+
+		} catch(Exception e) {
+			print ("Error happened: " + e);
+		}
+
 
 	}
 
