@@ -18,21 +18,20 @@ import types
 server.handle_timeout = types.MethodType(handle_timeout, server)
 
 def user_callback(path, tags, args, source):
-    # which user will be determined by path:
-    # we just throw away all slashes and join together what's left
     print "from" , path , "we got", args
-#    user = ''.join(path.split("/"))
-    # tags will contain 'fff'
-    # args is a OSCMessage with data
-    # source is where the message came from (in case you need to reply)
-#    print ("Now do something with", user,args[2],args[0],1-args[1]) 
 
 def quit_callback(path, tags, args, source):
     # don't do this at home (or it'll quit blender)
     global run
     run = False
 
+def camera_callback(path, tags, args, source):
+    print "CAMERACALLBACK: from" , path , "we got", args
+
+
+server.addMsgHandler( "/SWG/camera/4/position", camera_callback )
 server.addMsgHandler( "/test", user_callback )
+server.addMsgHandler( "/test/alive", user_callback )
 server.addMsgHandler( "/quit", quit_callback )
 
 # user script that's called by the game engine every frame

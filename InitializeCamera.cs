@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using System;
+using UnityOSC;
 
 public class InitializeCamera : MonoBehaviour {
 	public CameraPath camerapath;
@@ -47,10 +49,6 @@ public class InitializeCamera : MonoBehaviour {
 		// enable touch in vr
 		//Cardboard.SDK.TapIsTrigger = false;
 
-		//Initialize OSC clients (transmitters)
-		CreateClient("otherCamera", IPAddress.Parse("127.0.0.1"), 5555);
-		//Initialize OSC servers (listeners)
-		CreateServer("thisCamera", 6666);
 
 	}
 
@@ -67,6 +65,8 @@ public class InitializeCamera : MonoBehaviour {
 		} else {
 			startCamera ();
 		}
+
+
 	}
 		
 	
@@ -89,9 +89,11 @@ public class InitializeCamera : MonoBehaviour {
 	}
 
 	void initializeGameObject(){
+		/*		
 		for (int i = 0; i < thingsToActivate.Length; i++) {
 			thingsToActivate [i].SetActive (true);
 		}
+		*/
 	}
 	
 
