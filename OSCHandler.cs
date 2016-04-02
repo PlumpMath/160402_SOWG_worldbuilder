@@ -99,21 +99,44 @@ public class OSCHandler : MonoBehaviour
         //Example:		
         //CreateClient("SuperCollider", IPAddress.Parse("127.0.0.1"), 5555);
 
-		CreateClient("testServer", IPAddress.Parse("127.0.0.1"), 5555);
+		// static IPs, ish
+		var computerListenHost = "192.168.253.200";
+		var computerListenPort = 5555;
+		var phoneAListenHost = "192.168.253.201";
+		var phoneAListenPort = 5556;
+		var phoneBListenHost = "192.168.253.202";
+		var phoneBListenPort = 5557;
+
+		// EDIT THISSSSSSSSSSSSSSSSSSSSS
+		// EDIT THIS
+		var IAm = "phoneA";
+		var TheyAre = "computer";
+
+		// THE BELOW STUFF JUST MAKES OUR LIVES EASIER. DON'T EDIT.
+		var sendToHost = ""; var sendToPort = 0; var listenFromPort = 0;
+
+		if (IAm == "computer") {	listenFromPort = computerListenPort;	}
+		if (IAm == "phoneA") {	listenFromPort = phoneAListenPort;	}
+		if (IAm == "phoneB") {	listenFromPort = phoneBListenPort;	}
+		if (TheyAre == "computer") {	sendToHost = computerListenHost;	sendToPort = computerListenPort; }
+		if (TheyAre == "phoneA") {		sendToHost = phoneAListenHost;		sendToPort = phoneAListenPort; }
+		if (TheyAre == "phoneB") {		sendToHost = phoneBListenHost;		sendToPort = phoneBListenPort; }
 
 
-        //Initialize OSC servers (listeners)
-        //Example:
+		// client = sending to 
+		CreateClient("testServer", IPAddress.Parse(sendToHost), sendToPort);
 
-        CreateServer("thisListener", 5556);
-		print ("I JUST RAN");
+
+		// server = Listening From
+		CreateServer("thisListener", listenFromPort);
+	
 	}
 
 	void Start() {
 		OSCHandler.Instance.Init();
 
-		InvokeRepeating("sendCameraMessage", 0, 0.01F);
-		InvokeRepeating("receiveCameraMessage", 0, 0.01F);
+		InvokeRepeating("sendCameraMessage", 0, 0.5F);
+		InvokeRepeating("receiveCameraMessage", 0, 0.5F);
 
 	}
 
