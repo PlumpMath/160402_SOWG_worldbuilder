@@ -93,6 +93,7 @@ public class OSCHandler : MonoBehaviour
 	public static float myRadius = 0.0f;
 	public static float theirStrength = 0.0f; 
 	public static float theirRadius = 0.0f;
+	public static string candidateName;
 
 
 	#endregion
@@ -131,6 +132,8 @@ public class OSCHandler : MonoBehaviour
 		//var IAm = "phoneB"; var TheyAre = "phoneA";
 
 		var IAm = "computer"; var TheyAre = "phoneB";
+
+		candidateName = "cunninghamCandidate";
 
 		// THE BELOW STUFF JUST MAKES OUR LIVES EASIER. DON'T EDIT.
 		var sendToHost = ""; var sendToPort = 0; var listenFromPort = 0;
@@ -257,16 +260,20 @@ public class OSCHandler : MonoBehaviour
 
 	void handleGazesHit() {
 
-		GameObject candidate = GameObject.Find ("targetCandidate");
+		GameObject candidate = GameObject.Find (candidateName);
 
 
 		print("handleGazesHit()");
 
 		//handle our gaze
-		print(GazeMeshModellerFunctions.GazeUpdate(Camera.main.gameObject, candidate, myStrength, myRadius));
+		if (GazeMeshModellerFunctions.GazeUpdate (Camera.main.gameObject, candidate, myStrength, myRadius)) {
+			print ("gazehit: WE hit something!");
+		}
 
 		//handle their gaze
-		print(GazeMeshModellerFunctions.GazeUpdate(theirCameraObject, candidate, theirStrength, theirRadius));
+		if (GazeMeshModellerFunctions.GazeUpdate (theirCameraObject, candidate, theirStrength, theirRadius)) {
+			print ("gazehit: THEY hit something!");
+		}
 
 
 
