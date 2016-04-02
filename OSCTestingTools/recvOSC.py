@@ -3,7 +3,7 @@ from OSC import OSCServer
 import sys
 from time import sleep
 
-server = OSCServer( ("localhost", 5555) )
+server = OSCServer( ("127.0.0.1", 5555) )
 server.timeout = 0
 run = True
 
@@ -28,8 +28,7 @@ def quit_callback(path, tags, args, source):
 def camera_callback(path, tags, args, source):
     print "CAMERACALLBACK: from" , path , "we got", args
 
-
-server.addMsgHandler( "/SWG/camera/4/position", camera_callback )
+server.addMsgHandler( "/SWG/camera/4/positionorientation", camera_callback )
 server.addMsgHandler( "/test", user_callback )
 server.addMsgHandler( "/test/alive", user_callback )
 server.addMsgHandler( "/quit", quit_callback )

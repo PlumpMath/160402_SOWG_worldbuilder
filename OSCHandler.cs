@@ -22,6 +22,7 @@
 using System;
 using System.Net;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 using UnityEngine;
 using UnityOSC;
@@ -111,30 +112,70 @@ public class OSCHandler : MonoBehaviour
 	void Start() {
 		OSCHandler.Instance.Init();
 
-		InvokeRepeating("sendMessage", 0, 1.0F);
+		InvokeRepeating("sendMessage", 0, 2.0F);
+		InvokeRepeating("receiveMessage", 0, 1.0F);
 
 	}
 
 
 	void sendMessage() {
 		DateTime time = DateTime.Now;
-	
+
 		//float orientationAngle = 30.0f;
 
 		string cameraPosition = Camera.main.gameObject.transform.position.ToString("F5");
 		string cameraEuler = Camera.main.gameObject.transform.eulerAngles.ToString("F5");
 
-		string OSCAddress = "/SWG/camera/" + InitializeCamera.index + "/position";
+		string OSCAddress = "/SWG/camera/" + InitializeCamera.index + "/positionorientation";
 		string OSCMessage = cameraPosition + "/" + cameraEuler;
 
 		print ("YOOO, sending message ::: " + OSCMessage + " ::: to" + OSCAddress);
 
 		OSCHandler.Instance.SendMessageToClient("testServer", OSCAddress, OSCMessage);
 
-	
+	}
+
+	public Vector3 getVector3(string rString){
+		string[] temp = rString.Substring(1,rString.Length-2).Split(',');
+		float x = float.Parse(temp[0]);
+		float y = float.Parse(temp[1]);
+		float z = float.Parse(temp[2]);
+		Vector3 rValue = new Vector3(x,y,z);
+		return rValue;
 	}
 
 
+	void receiveMessage() {
+		OSCHandler.Instance.UpdateLogs();
+
+		Dictionary<string, ServerLog> servers = new Dictionary<string, ServerLog>();
+		servers = OSCHandler.Instance.Servers;
+	
+		string oscMessage = servers["thisListener"].server.LastReceivedPacket.Data[0].ToString();
+		string oscAddress = servers["thisListener"].server.LastReceivedPacket.Address;
+
+		print(">>>>");
+
+		print (oscMessage);
+		print (oscAddress);
+
+		string[] positionorientation = oscMessage.Split('/');
+
+		// /SWG/camera/9999/positionorientation
+
+		Regex regex = new Regex(@"/camera/(?<cameraNumber>\d+?)/positionorientation");
+		var match = regex.Match(oscAddress);
+		var cameraNumber = Int32.Parse(match.Groups["cameraNumber"].Value);
+
+		print (cameraNumber);
+	
+
+
+		GameObject cameraToSet = GameObject.Find ("Camera9999");
+		cameraToSet.gameObject.transform.position = getVector3(positionorientation[0]);
+		cameraToSet.gameObject.transform.eulerAngles = getVector3(positionorientation[1]);
+
+	}
 
 	/*************************************
 	 * CUSTOM CODE ENDING
