@@ -26,6 +26,7 @@ using System.Text.RegularExpressions;
 using System.Linq;
 
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityOSC;
 
 /// <summary>
@@ -134,9 +135,9 @@ public class OSCHandler : MonoBehaviour
 		// THE BELOW STUFF JUST MAKES OUR LIVES EASIER. DON'T EDIT.
 		var sendToHost = ""; var sendToPort = 0; var listenFromPort = 0;
 		float growStrength = 0.2f; 
-		float growRadius = 0.05f;
+		float growRadius = 0.1f;
 		float shrinkStrength = 0.2f;
-		float shrinkRadius = 0.05f;
+		float shrinkRadius = 0.1f;
 
 		if (IAm == "computer") {	listenFromPort = computerListenPort; myRadius = shrinkRadius; myStrength = shrinkStrength;	}
 		if (IAm == "phoneA") {	listenFromPort = phoneAListenPort; myRadius = shrinkRadius; myStrength = shrinkStrength;	}
@@ -213,6 +214,12 @@ public class OSCHandler : MonoBehaviour
 
 			string oscMessage = servers["thisListener"].server.LastReceivedPacket.Data[0].ToString();
 			string oscAddress = servers["thisListener"].server.LastReceivedPacket.Address;
+
+			if(oscAddress == "/init") {
+				// if we receive an initialization message, then reload level
+				SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+				return;
+			}
 
 			print(">>>>");
 
@@ -330,7 +337,7 @@ public class OSCHandler : MonoBehaviour
 		_clients.Add(clientId, clientitem);
 		
 		// Send test message
-		string testaddress = "/test/alive/";
+		string testaddress = "/init";
 		OSCMessage message = new OSCMessage(testaddress, destination.ToString());
 		message.Append(port); message.Append("OK");
 		
