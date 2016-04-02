@@ -109,8 +109,16 @@ public class OSCHandler : MonoBehaviour
 
 		// EDIT THISSSSSSSSSSSSSSSSSSSSS
 		// EDIT THIS
-		var IAm = "phoneA";
-		var TheyAre = "computer";
+
+	
+		// ALSO we have to set index in InitializeCamera.cs
+
+
+		//var IAm = "phoneA"; var TheyAre = "computer";
+		//var IAm = "computer"; var TheyAre = "phoneA";
+		//var IAm = "phoneA"; var TheyAre = "phoneB";
+		var IAm = "phoneB"; var TheyAre = "phoneA";
+		//var IAm = "computer"; var TheyAre = "phoneB";
 
 		// THE BELOW STUFF JUST MAKES OUR LIVES EASIER. DON'T EDIT.
 		var sendToHost = ""; var sendToPort = 0; var listenFromPort = 0;
@@ -126,17 +134,19 @@ public class OSCHandler : MonoBehaviour
 		// client = sending to 
 		CreateClient("testServer", IPAddress.Parse(sendToHost), sendToPort);
 
-
 		// server = Listening From
 		CreateServer("thisListener", listenFromPort);
 	
+
+		print ("listening from port: " + listenFromPort);
+		print ("Sending to: " + sendToHost + " on port " + sendToPort);
 	}
 
 	void Start() {
 		OSCHandler.Instance.Init();
 
-		InvokeRepeating("sendCameraMessage", 0, 0.5F);
-		InvokeRepeating("receiveCameraMessage", 0, 0.5F);
+		InvokeRepeating("sendCameraMessage", 0, 0.05F);
+		InvokeRepeating("receiveCameraMessage", 0, 0.05F);
 
 	}
 
@@ -185,10 +195,10 @@ public class OSCHandler : MonoBehaviour
 			string oscMessage = servers["thisListener"].server.LastReceivedPacket.Data[0].ToString();
 			string oscAddress = servers["thisListener"].server.LastReceivedPacket.Address;
 
-			/*print(">>>>");
+			print(">>>>");
 
 			print (oscMessage);
-			print (oscAddress);*/
+			print (oscAddress);
 		
 		
 			Regex regex = new Regex(@"/camera/(?<cameraID>\w+?)/positionorientation");
@@ -196,8 +206,11 @@ public class OSCHandler : MonoBehaviour
 			var cameraID = match.Groups["cameraID"].Value;
 		
 
-			GameObject cameraToSet = GameObject.Find (cameraID);
+			GameObject cameraToSet = GameObject.Find ("CAMERA" + cameraID);
 			string[] positionorientation = oscMessage.Split('/');
+
+			print(getVector3(positionorientation[0]));
+			print(positionorientation[1]);
 
 			cameraToSet.gameObject.transform.position = getVector3(positionorientation[0]);
 			cameraToSet.gameObject.transform.eulerAngles = getVector3(positionorientation[1]);

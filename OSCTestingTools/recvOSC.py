@@ -3,7 +3,7 @@ from OSC import OSCServer
 import sys
 from time import sleep
 
-server = OSCServer( ("127.0.0.1", 5555) )
+server = OSCServer( ("192.168.253.200", 5555) )
 server.timeout = 0
 run = True
 

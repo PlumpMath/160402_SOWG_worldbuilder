@@ -15,7 +15,13 @@ public class InitializeCamera : MonoBehaviour {
 	private float pathSpeed;
 
 	// set starting position (0-6)
-	public static int index = 4;
+	//public static int index = 4;
+
+	// PHONE A = 4
+	// PHONE B = 2
+	// COMPUTER = 0
+	public static int index = 2;
+
 
 	public GameObject[] thingsToActivate;
 
