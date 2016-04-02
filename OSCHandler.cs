@@ -85,6 +85,15 @@ public class OSCHandler : MonoBehaviour
 	private Dictionary<string, ServerLog> _servers = new Dictionary<string, ServerLog>();
 	
 	private const int _loglength = 25;
+
+
+	public static GameObject theirCameraObject = null;
+	public static float myStrength = 0.0f; 
+	public static float myRadius = 0.0f;
+	public static float theirStrength = 0.0f; 
+	public static float theirRadius = 0.0f;
+
+
 	#endregion
 
 	/*************************************
@@ -99,7 +108,6 @@ public class OSCHandler : MonoBehaviour
         //Initialize OSC clients (transmitters)
         //Example:		
         //CreateClient("SuperCollider", IPAddress.Parse("127.0.0.1"), 5555);
-
 		// static IPs, ish
 		var computerListenHost = "192.168.253.200";
 		var computerListenPort = 5555;
@@ -108,28 +116,36 @@ public class OSCHandler : MonoBehaviour
 		var phoneBListenHost = "192.168.253.202";
 		var phoneBListenPort = 5557;
 
-		// EDIT THISSSSSSSSSSSSSSSSSSSSS
-		// EDIT THIS
 
-	
+
+
+		// EDIT THIS
 		// ALSO we have to set index in InitializeCamera.cs
 
-
-		//var IAm = "phoneB"; var TheyAre = "computer";
+	
+		//var IAm = "phoneB"; var TheyAre = "computer"; 
+	
 		//var IAm = "computer"; var TheyAre = "phoneA";
 		//var IAm = "phoneA"; var TheyAre = "phoneB";
 		//var IAm = "phoneB"; var TheyAre = "phoneA";
+
 		var IAm = "computer"; var TheyAre = "phoneB";
 
 		// THE BELOW STUFF JUST MAKES OUR LIVES EASIER. DON'T EDIT.
 		var sendToHost = ""; var sendToPort = 0; var listenFromPort = 0;
+		float growStrength = 0.2f; 
+		float growRadius = 0.05f;
+		float shrinkStrength = 0.2f;
+		float shrinkRadius = 0.05f;
 
-		if (IAm == "computer") {	listenFromPort = computerListenPort;	}
-		if (IAm == "phoneA") {	listenFromPort = phoneAListenPort;	}
-		if (IAm == "phoneB") {	listenFromPort = phoneBListenPort;	}
-		if (TheyAre == "computer") {	sendToHost = computerListenHost;	sendToPort = computerListenPort; }
-		if (TheyAre == "phoneA") {		sendToHost = phoneAListenHost;		sendToPort = phoneAListenPort; }
-		if (TheyAre == "phoneB") {		sendToHost = phoneBListenHost;		sendToPort = phoneBListenPort; }
+		if (IAm == "computer") {	listenFromPort = computerListenPort; myRadius = shrinkRadius; myStrength = shrinkStrength;	}
+		if (IAm == "phoneA") {	listenFromPort = phoneAListenPort; myRadius = shrinkRadius; myStrength = shrinkStrength;	}
+		if (IAm == "phoneB") {	listenFromPort = phoneBListenPort;	myRadius = growRadius; myStrength = growStrength;	}
+		if (TheyAre == "computer") {	sendToHost = computerListenHost;	sendToPort = computerListenPort; theirRadius = shrinkRadius; theirStrength = shrinkStrength;	}
+		if (TheyAre == "phoneA") {		sendToHost = phoneAListenHost;		sendToPort = phoneAListenPort; theirRadius = shrinkRadius; theirStrength = shrinkStrength;	}
+		if (TheyAre == "phoneB") {		sendToHost = phoneBListenHost;		sendToPort = phoneBListenPort; theirRadius = growRadius; theirStrength = growStrength;	}
+
+
 
 
 		// client = sending to 
@@ -146,9 +162,9 @@ public class OSCHandler : MonoBehaviour
 	void Start() {
 		OSCHandler.Instance.Init();
 
-		InvokeRepeating("sendCameraMessage", 0, 1F);
-		InvokeRepeating("receiveCameraMessage", 0, 1F);
-		//InvokeRepeating ("handleGazeHit", 1, 1F);
+		InvokeRepeating("sendCameraMessage", 0, 0.1F);
+		InvokeRepeating("receiveCameraMessage", 0, 0.1F);
+		InvokeRepeating ("handleGazesHit", 1, 0.25F);
 
 
 	}
@@ -219,20 +235,11 @@ public class OSCHandler : MonoBehaviour
 			cameraToSet.gameObject.transform.eulerAngles = getVector3(positionorientation[1]);
 
 
-			// move this into separate function
+			// we store the Cameraindex in a static Var so that handleGazesHit() can handle it
+			theirCameraObject = cameraToSet;
+
 
 		
-
-			GameObject candidate = GameObject.Find ("testCandidate");
-			print("handleGazeHit()");
-			print(GazeMeshModellerFunctions.GazeUpdate(cameraToSet, candidate, 0.3f, 0.3f));
-
-
-			//GazeMeshModellerFunctions.GazeUpdate(cameraToSet, candidate, 1, 1);
-
-			//
-
-
 
 		} catch(Exception e) {
 			print ("Error happened: " + e);
@@ -241,12 +248,21 @@ public class OSCHandler : MonoBehaviour
 
 	}
 
-	void handleGazeHit() {
-		/*
+	void handleGazesHit() {
+
 		GameObject candidate = GameObject.Find ("testCandidate");
-		print("handleGazeHit()");
-		print(GazeMeshModellerFunctions.GazeUpdate(Camera.main.gameObject, candidate, 0.3f, 0.3f));
-*/
+
+
+		print("handleGazesHit()");
+
+		//handle our gaze
+		print(GazeMeshModellerFunctions.GazeUpdate(Camera.main.gameObject, candidate, myStrength, myRadius));
+
+		//handle their gaze
+		print(GazeMeshModellerFunctions.GazeUpdate(theirCameraObject, candidate, theirStrength, theirRadius));
+
+
+
 	}
 
 	/*************************************
