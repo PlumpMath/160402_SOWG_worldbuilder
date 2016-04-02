@@ -257,7 +257,7 @@ public class OSCHandler : MonoBehaviour
 
 	void handleGazesHit() {
 
-		GameObject candidate = GameObject.Find ("testCandidate");
+		GameObject candidate = GameObject.Find ("targetCandidate");
 
 
 		print("handleGazesHit()");
