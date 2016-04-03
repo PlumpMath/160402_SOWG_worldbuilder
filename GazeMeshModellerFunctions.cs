@@ -53,7 +53,7 @@ public static class GazeMeshModellerFunctions{
 	}
 
 	// from gazer to gazeCandidate (has to have MeshCollider)
-	public static bool GazeUpdate(GameObject gazer, GameObject gazeCandidate, 
+	public static object GazeUpdate(GameObject gazer, GameObject gazeCandidate, 
 								float strength, float radius){
 		Transform t = gazer.transform;
 		Collider coll = gazeCandidate.GetComponent<Collider>();
@@ -61,9 +61,8 @@ public static class GazeMeshModellerFunctions{
 		RaycastHit hit;
 		if (coll.Raycast(ray, out hit, 1000.0F)){
 			ModelStrike(hit, strength, radius);
-			return true;
 		}
-		return false;
+		return (object) hit;
 	}
 
 }

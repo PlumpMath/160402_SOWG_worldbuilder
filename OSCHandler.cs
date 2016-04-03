@@ -126,23 +126,24 @@ public class OSCHandler : MonoBehaviour
 
 	
 		//var IAm = "phoneB"; var TheyAre = "computer"; 
-	
+		var IAm = "computer"; var TheyAre = "phoneB";
+
 		//var IAm = "computer"; var TheyAre = "phoneA";
 		//var IAm = "phoneA"; var TheyAre = "phoneB";
 		//var IAm = "phoneB"; var TheyAre = "phoneA";
 
-		var IAm = "computer"; var TheyAre = "phoneB";
 
-		candidateName = "cunninghamCandidate";
+		//candidateName = "targetCandidate";
+		candidateName = "thermoCandidate";
 
 		// THE BELOW STUFF JUST MAKES OUR LIVES EASIER. DON'T EDIT.
 		var sendToHost = ""; var sendToPort = 0; var listenFromPort = 0;
-		float growStrength = 0.2f; 
-		float growRadius = 0.1f;
-		float shrinkStrength = 0.2f;
-		float shrinkRadius = 0.1f;
+		float growStrength = 40.2f; 
+		float growRadius = 10.2f;
+		float shrinkStrength = -7.2f;
+		float shrinkRadius = 10.2f;
 
-		if (IAm == "computer") {	listenFromPort = computerListenPort; myRadius = shrinkRadius; myStrength = shrinkStrength;	}
+		if (IAm == "computer") {	listenFromPort = computerListenPort; myRadius = growRadius; myStrength = growStrength;	}
 		if (IAm == "phoneA") {	listenFromPort = phoneAListenPort; myRadius = shrinkRadius; myStrength = shrinkStrength;	}
 		if (IAm == "phoneB") {	listenFromPort = phoneBListenPort;	myRadius = growRadius; myStrength = growStrength;	}
 		if (TheyAre == "computer") {	sendToHost = computerListenHost;	sendToPort = computerListenPort; theirRadius = shrinkRadius; theirStrength = shrinkStrength;	}
@@ -220,8 +221,9 @@ public class OSCHandler : MonoBehaviour
 
 			if(oscAddress == "/init") {
 				// if we receive an initialization message, then reload level
-				SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-				return;
+				//SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+				//print("HEY! WE GOTTA INITIALIZE!!"); 
+				//return;
 			}
 
 			print(">>>>");
@@ -246,6 +248,8 @@ public class OSCHandler : MonoBehaviour
 
 
 			// we store the Cameraindex in a static Var so that handleGazesHit() can handle it
+			print("camera>>>");
+			print(cameraID);
 			theirCameraObject = cameraToSet;
 
 
@@ -266,13 +270,29 @@ public class OSCHandler : MonoBehaviour
 		print("handleGazesHit()");
 
 		//handle our gaze
-		if (GazeMeshModellerFunctions.GazeUpdate (Camera.main.gameObject, candidate, myStrength, myRadius)) {
+		object ourRaycastHit = GazeMeshModellerFunctions.GazeUpdate (Camera.main.gameObject, candidate, myStrength, myRadius);
+
+		if (ourRaycastHit != null) {
+			try {
+			RaycastHit thisr = (RaycastHit)ourRaycastHit;
 			print ("gazehit: WE hit something!");
+			print (thisr.ToString ());
+			} catch {
+			}
 		}
 
 		//handle their gaze
-		if (GazeMeshModellerFunctions.GazeUpdate (theirCameraObject, candidate, theirStrength, theirRadius)) {
-			print ("gazehit: THEY hit something!");
+		if (theirCameraObject) {
+
+			object theirRaycastHit = GazeMeshModellerFunctions.GazeUpdate (theirCameraObject, candidate, theirStrength, theirRadius);
+
+			if(theirRaycastHit != null) {
+
+
+				print ("gazehit: THEY hit something!");
+			}
+		} else {
+			print ("theirCameraObject doesn't exist!!!!");
 		}
 
 
