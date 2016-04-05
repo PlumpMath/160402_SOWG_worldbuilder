@@ -5,6 +5,10 @@ using System.Linq;
 
 public static class GazeMeshModellerFunctions{
 
+	public static string[] modelPaths = 
+		new string[]{
+			"1929-Cunningham", "1931_fnrs", "1956_Thermoheliodon",
+			"1972_Ecological House", "2000_Eden"};
 
 	public static readonly float PI = Mathf.PI;
 	public static readonly float TWO_PI = Mathf.PI * 2;
@@ -12,6 +16,50 @@ public static class GazeMeshModellerFunctions{
 	public static float smootherStep (float x){
 		float a = Mathf.Clamp01(x);
 		return 6 * Mathf.Pow(a, 5) - 15 * Mathf.Pow(a, 4) + 10 * Mathf.Pow(a, 3);
+	}
+
+	public static Mesh ImportMesh(string s){
+		return Resources.Load(s, typeof(Mesh)) as Mesh;
+	}
+
+	public static Mesh ImportModelMesh(string s){
+		return ImportMesh("models/" + s);
+	}
+
+	public static GameObject PopulateWithMesh(GameObject obj, Mesh m){
+		// add mesh to meshfilter
+		MeshFilter mf = obj.GetComponent<MeshFilter>();
+		if (mf == null){
+			mf = obj.AddComponent<MeshFilter>();
+		}
+		mf.sharedMesh = m;
+		// add collider
+		MeshCollider mc = obj.GetComponent<MeshCollider>();
+		if (mc == null){
+			mc = obj.AddComponent<MeshCollider>();
+		}
+		mc.sharedMesh = m;
+		// add MeshRenderer
+		MeshRenderer mr = obj.GetComponent<MeshRenderer>();
+		if (mr == null){
+			mr = obj.AddComponent<MeshRenderer>();
+		}
+		// don't know if this will work as well as one would hope:
+		mr.material = new Material(Shader.Find("Standard"));
+
+		return obj;
+	}
+
+	public static GameObject MeshObject(string s){
+		GameObject obj = new GameObject(s);
+		PopulateWithMesh(obj, ImportModelMesh(s));
+		return obj;
+	}
+
+	// thoroughly hacky named-based lookup:
+	public static GameObject ResetMesh(GameObject obj){
+		PopulateWithMesh(obj, ImportModelMesh(obj.name));
+		return obj;
 	}
 
 	// transform mesh of object struck by RaycastHit hit
@@ -22,6 +70,8 @@ public static class GazeMeshModellerFunctions{
 		// Move hit point into space of impacted target:
 		Vector3 hp = targTr.InverseTransformPoint(hit.point);
 		Mesh m = targ.GetComponent<MeshFilter>().mesh;
+		// scale radius, grossly:
+		float radius2 = (targTr.InverseTransformPoint(new Vector3(radius, 0, 0))).magnitude;
 		Vector3[] vs = m.vertices;
 		// Loop over all vertices, moving towards or away 
 		// from hit point (hp) according to their proximity:
@@ -29,8 +79,8 @@ public static class GazeMeshModellerFunctions{
 			Vector3 p = vs[i];
 			Vector3 diff = p - hp;
 			float mag = diff.magnitude;
-			if (mag < radius){
-				float delta = strength * (1 - smootherStep(mag / radius));
+			if (mag < radius2){
+				float delta = strength * (1 - smootherStep(mag / radius2));
 				Vector3 deltaV = diff.normalized * delta;
 				Vector3 p2 = p + deltaV;
 				// Ensure we don't shift through the hit point if strength is negative:
@@ -78,6 +128,5 @@ public static class GazeMeshModellerFunctions{
 		}
 		return (object) hit;
 	}
-
 
 }
