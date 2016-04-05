@@ -31,48 +31,68 @@ public class GazeSoundFunctions{
 		return LoadClip(backgroundPath);
 	}
 
-	public static GameObject FindAudioSourceObj (GameObject obj){
-		return obj.transform.Find("AudioSource").gameObject;
+	public static GameObject AddAudioSourceObject(GameObject obj){
+		GameObject g = new GameObject("AudioSource");
+		g.transform.parent = obj.transform;
+		g.AddComponent<AudioSource>();
+		return g;
+	}
+
+	public static GameObject NextAudioSourceObject(GameObject obj){
+		GameObject asource = obj.transform.Cast<Transform>(
+			).Select((Transform x) => x.gameObject
+			).Where(x => x.name == "AudioSource"
+			).Where(x => ! x.GetComponent<AudioSource>().isPlaying
+			).FirstOrDefault();
+		if(asource != null){
+			return asource;
+		}else{
+			return AddAudioSourceObject(obj);
+		}
 	}
 
 	public static AudioSource AudioSourcePlayClip (AudioSource asource, AudioClip clip,
-													 bool loop){
+													 bool loop, bool threeD){
 		asource.clip = clip;
 		asource.loop = loop;
-		asource.spatialBlend = 1F; // might not be the place to do this
+		if(threeD){
+			asource.spatialBlend = 1F; // might not be the place to do this
+		}else{
+			asource.spatialBlend = 0F;
+		}
 		asource.Play();
 		return asource;
 	}
 
 	public static GameObject PlayClipAtPoint(GameObject obj, Vector3 pt, 
-											AudioClip clip, bool loop){
-		GameObject audioSourceObj = FindAudioSourceObj(obj);
+											AudioClip clip, bool loop, bool threeD){
+		GameObject audioSourceObj = NextAudioSourceObject(obj);
 		audioSourceObj.transform.position = pt;
 		AudioSourcePlayClip(
 			audioSourceObj.GetComponent<AudioSource>(),
 			clip,
-			loop);
+			loop,
+			threeD);
 		return obj;
 	}
 
-	public static void PlayClipAtHit (RaycastHit hit, AudioClip clip, bool loop){
+	public static void PlayClipAtHit (RaycastHit hit, AudioClip clip, bool loop, bool threeD){
 		PlayClipAtPoint(
 			hit.transform.gameObject,
 			hit.point,
 			clip,
-			loop);
+			loop,
+			threeD);
 	}
 
 	// top-level API
 
 	public static void PlayRandomHitAtHit(RaycastHit hit){
-		PlayClipAtHit(hit, RandomHitClip(), false);
+		PlayClipAtHit(hit, RandomHitClip(), false, true);
 	}
 
 	public static void PlayBackgroundAtObject(GameObject obj){
-		PlayClipAtPoint(obj, obj.transform.position, BackgroundClip(), true);
-		// hacky:
-		FindAudioSourceObj(obj).GetComponent<AudioSource>().spatialBlend = 0F;
+		PlayClipAtPoint(obj, obj.transform.position, BackgroundClip(), true, false);
 	}
 
 }
