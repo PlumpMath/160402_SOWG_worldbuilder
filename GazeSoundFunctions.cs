@@ -39,15 +39,18 @@ public class GazeSoundFunctions{
 	}
 
 	public static GameObject NextAudioSourceObject(GameObject obj){
-		GameObject asource = obj.transform.Cast<Transform>(
+		GameObject[] audioSourceObjs = obj.transform.Cast<Transform>(
 			).Select((Transform x) => x.gameObject
 			).Where(x => x.name == "AudioSource"
-			).Where(x => ! x.GetComponent<AudioSource>().isPlaying
+			).ToArray();
+		GameObject asource = audioSourceObjs.Where(x => !(x.GetComponent<AudioSource>().isPlaying)
 			).FirstOrDefault();
 		if(asource != null){
 			return asource;
-		}else{
+		}else if (audioSourceObjs.Length <= 5){
 			return AddAudioSourceObject(obj);
+		}else{
+			return null;
 		}
 	}
 
@@ -67,12 +70,14 @@ public class GazeSoundFunctions{
 	public static GameObject PlayClipAtPoint(GameObject obj, Vector3 pt, 
 											AudioClip clip, bool loop, bool threeD){
 		GameObject audioSourceObj = NextAudioSourceObject(obj);
+		if (audioSourceObj != null){
 		audioSourceObj.transform.position = pt;
 		AudioSourcePlayClip(
 			audioSourceObj.GetComponent<AudioSource>(),
 			clip,
 			loop,
 			threeD);
+		}
 		return obj;
 	}
 
